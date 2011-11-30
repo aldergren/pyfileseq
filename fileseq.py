@@ -147,7 +147,9 @@ class FileSequence():
         """
         Find all file sequences at the given path. Returns a tuple (sequences, other_files).
         """
-        sequences, other_files = cls.find_in_list(os.listdir(search_path))
+        files = [e for e in os.listdir(search_path)
+                 if os.path.isfile(os.path.join(search_path, e))]
+        sequences, other_files = cls.find_in_list(files)
         for sequence in sequences:
             sequence.path = search_path
         return sequences, other_files
