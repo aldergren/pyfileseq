@@ -10,6 +10,9 @@ generate a lot of sequential images, e.g. scanning, rendering, etc. It
 should (hopefully) support any imaginable file sequence out there and
 be reasonably fast.
 
+In ambiguous cases (such as files 999, 0999 & 1000 being present) the finder
+methods will prefer padded sequences over unpadded.
+
 Usage:
 
 >>> from fileseq import FileSequence
@@ -17,6 +20,7 @@ Usage:
 >>> sequences[0]
 my_sequence.[0001-0005].ext
 
+>>> my_sequence = sequences[0]
 >>> for filename in my_sequence:
 ...     print filename
 ... 
@@ -142,17 +146,19 @@ class FileSequence():
     def find(cls, search_path):
         """
         Find all file sequences at the given path. Returns a tuple (sequences, other_files).
-
-        search_path: Path to search for sequences (does not recurse).
-
-        In ambiguous cases (such as files 999, 0999 & 1000 being present) this method will 
-        prefer padded sequences over unpadded.
         """
+        sequences, other_files = cls.find_in_list(os.listdir(search_path))
+        for sequence in sequences:
+            sequence.path = search_path
+        return sequences, other_files
 
+    @classmethod
+    def find_in_list(cls, entries):
+        """
+        Find all file sequences in a list of files. Returns a tuple (sequences, other_files).
+        """
         sequences = []
         other_files = []
-
-        entries = os.listdir(search_path)
 
         # We sort the list to ensure that padded entries are found before any
         # unpadded equivalent.
@@ -220,7 +226,7 @@ class FileSequence():
 
                 if (first - last):
                     # We've found what looks like a sequence of files.
-                    sequence = FileSequence(search_path,
+                    sequence = FileSequence("",
                                             "".join(components[:i]), 
                                             "".join(components[i + 1:]),
                                             first,
