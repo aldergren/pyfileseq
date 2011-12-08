@@ -3,8 +3,6 @@
 """
 PyFileSeq, a library for working with file sequences.
 
-Author: Niklas Aldergren <niklas@aldergren.com>
-
 This library will find file sequences in a directory (or another source) and 
 return them as a list of FileSequence instances. The FileSequence class provides 
 useful functionality for further manipulating a sequence; slicing, generation 
