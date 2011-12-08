@@ -23,15 +23,6 @@ my_sequence.[0001-0005].ext
 >>> my_sequence.format("{head}{padchars}{tail}")
 'my_sequence.####.ext'
 
->>> for filename in my_sequence:
-...     print filename
-... 
-my_sequence.0001.ext
-my_sequence.0002.ext
-my_sequence.0003.ext
-my_sequence.0004.ext
-my_sequence.0005.ext
-
 >>> for filename in my_sequence.files:
 ...     print filename
 ... 
