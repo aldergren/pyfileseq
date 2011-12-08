@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
 """
-PyFileSeq, a library for working with file sequences on disk.
+PyFileSeq, a library for working with file sequences.
 
 Author: Niklas Aldergren <niklas@aldergren.com>
 
-This is probably most useful when working with applications that
-generate a lot of sequential images, e.g. scanning, rendering, etc. It
-should (hopefully) support any imaginable file sequence out there and
-be reasonably fast.
+This library will find file sequences in a directory (or another source) and 
+return them as a list of FileSequence instances. The FileSequence class provides 
+useful functionality for further manipulating a sequence; slicing, generation 
+of filenames, string representations, etc.
 
-In ambiguous cases (such as files 999, 0999 & 1000 being present) the finder
-methods will prefer padded sequences over unpadded.
+This is probably most useful when working with applications that generate 
+sequential files, e.g. scanning, rendering, etc. It should (hopefully) support 
+any imaginable file sequence out there and be reasonably fast.
 
 Usage:
 
@@ -21,6 +22,9 @@ Usage:
 my_sequence.[0001-0005].ext
 
 >>> my_sequence = sequences[0]
+>>> my_sequence.format("{head}{padchars}{tail}")
+'my_sequence.####.ext'
+
 >>> for filename in my_sequence:
 ...     print filename
 ... 
@@ -30,13 +34,18 @@ my_sequence.0003.ext
 my_sequence.0004.ext
 my_sequence.0005.ext
 
->>> my_sequence.format("{head}{padchars}{tail}")
-'my_sequence.####.ext'
-
+>>> for filename in my_sequence.files:
+...     print filename
+... 
+/stuff/my_sequence.0001.ext
+/stuff/my_sequence.0002.ext
+/stuff/my_sequence.0003.ext
+/stuff/my_sequence.0004.ext
+/stuff/my_sequence.0005.ext
 """
 
 __author__ = "Niklas Aldergren <niklas@aldergren.com>"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import re
 import os
@@ -56,6 +65,7 @@ class FileSequence():
     path: Path to the sequence.
     name: Any part of the filename preceding the counter, excluding common delimiters.
     extension: Filename extension, excluding any delimiter.
+    files: All filenames in this sequence, in numeric order, with full path.
     """
 
     NUMBER_PATTERN = re.compile("([0-9]+)")
@@ -141,6 +151,11 @@ class FileSequence():
     @property
     def extension(self):
         return self.tail.split('.')[-1]
+
+    @property
+    def files(self):
+        for filename in iter(self):
+            yield os.path.join(self.path, filename)
 
     @classmethod
     def find(cls, search_path):
